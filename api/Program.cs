@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using StargateAPI.Business.Commands;
 using StargateAPI.Business.Data;
-using StargateAPI.Middlewares;
+using StargateAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 

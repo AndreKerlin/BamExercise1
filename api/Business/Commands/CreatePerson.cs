@@ -41,8 +41,8 @@ namespace StargateAPI.Business.Commands
         {
             var person = await _context.People.FirstOrDefaultAsync(z => z.Name == request.Name, cancellationToken);
             if(person is not null){
-                throw new BadHttpRequestException($"Bad Request: Name {request.Name} already exists");
-            }
+                return new CreatePersonResult { Success = false, Message = $"An Astronaut with the name {request.Name} already exists" };            
+                }
             else{
                 try
                 {

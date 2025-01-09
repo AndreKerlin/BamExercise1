@@ -5,9 +5,10 @@ public class StarbaseApiCallLogger
 {
     private readonly StargateContext _context;
 
+
     public StarbaseApiCallLogger(StargateContext context)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     public async Task LogApiCall(string apiEndpoint, bool successStatus, string? changedField = null, string ?oldValue = null, string? newValue = null, string? errorLog = null)

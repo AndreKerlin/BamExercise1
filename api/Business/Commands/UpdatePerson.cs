@@ -44,8 +44,13 @@ namespace StargateAPI.Business.Commands
         {
             var person = await _context.People.FirstOrDefaultAsync(z => z.Name == request.Name, cancellationToken);
             if(person is null){
-                throw new BadHttpRequestException("Bad Request: Name does not exist");
-            }
+                return new UpdatePersonResult()
+                    {
+                        Message = $"Person with name {request.Name} not found",
+                        Success = false,
+                        ResponseCode = (int)HttpStatusCode.InternalServerError
+                    };            
+                    }
             else{
                 try
                 {
