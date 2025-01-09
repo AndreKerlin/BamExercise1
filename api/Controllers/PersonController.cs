@@ -16,37 +16,23 @@ namespace StargateAPI.Controllers
     public class PersonController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly StarbaseApiCallLogger _apiLogger; 
-        private readonly ILogger<PersonController> _logger;
-        public PersonController(IMediator mediator, StarbaseApiCallLogger apiCallLogger,ILogger<PersonController> logger)
+        private readonly StarbaseApiCallLogger _apiLogger;
+        public PersonController(IMediator mediator, StarbaseApiCallLogger apiCallLogger)
         {
             _mediator = mediator;
             _apiLogger = apiCallLogger;
-            _logger = logger;
         }
 
         [HttpGet("")]
         public async Task<IActionResult> GetPeople()
         {
-            try
-            {
                 var result = await _mediator.Send(new GetPeople()
                 {
 
                 });
 
                 return this.GetResponse(result);
-            }
-            catch (Exception ex)
-            {
-                await _apiLogger.LogApiCall("GetPeople", false, errorLog: ex.Message); // log error
-                return this.GetResponse(new BaseResponse()
-                {
-                    Message = ex.Message,
-                    Success = false,
-                    ResponseCode = (int)HttpStatusCode.InternalServerError
-                });
-            }
+            
         }
 
         [HttpGet("{name}")]
@@ -58,25 +44,12 @@ namespace StargateAPI.Controllers
                 return validationResult; // essential Paramater was null
             }
             else{
-                try
+                var result = await _mediator.Send(new GetPersonByName()
                 {
-                    var result = await _mediator.Send(new GetPersonByName()
-                    {
-                        Name = name
-                    });
+                    Name = name
+                });
 
-                    return this.GetResponse(result);
-                }
-                catch (Exception ex)
-                {
-                    await _apiLogger.LogApiCall($"GetPersonByName/{name}", true, errorLog: ex.Message); // log error
-                    return this.GetResponse(new BaseResponse()
-                    {
-                        Message = ex.Message,
-                        Success = false,
-                        ResponseCode = (int)HttpStatusCode.InternalServerError
-                    });
-                }
+                return this.GetResponse(result);
             }
             
         }
@@ -91,22 +64,9 @@ namespace StargateAPI.Controllers
             }
             else
             {
-                try
-                {
-                    var result = await _mediator.Send(command);
+                var result = await _mediator.Send(command);
 
-                    return Ok(result);
-                }
-                catch (Exception ex)
-                {
-                    await _apiLogger.LogApiCall($"CreatePerson/{command.Name}", false, errorLog: ex.Message);  // log error
-                    return this.GetResponse(new BaseResponse()
-                    {
-                        Message = ex.Message,
-                        Success = false,
-                        ResponseCode = (int)HttpStatusCode.InternalServerError
-                    });
-                }
+                return Ok(result);
             }
             
         }
@@ -121,24 +81,9 @@ namespace StargateAPI.Controllers
             }
             else
             {
-                try
-                {
-                    var result = await _mediator.Send(command);
-                    
-                    return this.GetResponse(result);
-                }
-                catch (Exception ex)
-                {
-                    await _apiLogger.LogApiCall($"UpdatePerson/{command.Name}", false, errorLog: ex.Message); // log error
-
-                    return this.GetResponse(new BaseResponse()
-                    {
-                        Message = ex.Message,
-                        Success = false,
-                        ResponseCode = (int)HttpStatusCode.InternalServerError
-                    });
-                }
-
+                var result = await _mediator.Send(command);
+                
+                return this.GetResponse(result);
             }
             
         }

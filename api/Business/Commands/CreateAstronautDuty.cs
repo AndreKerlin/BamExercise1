@@ -72,6 +72,7 @@ namespace StargateAPI.Business.Commands
 
                             if (string.Equals(request.DutyTitle, "RETIRED", StringComparison.OrdinalIgnoreCase))
                             {
+                                request.DutyTitle = "RETIRED";
                                 astronautDetail.CareerEndDate = request.DutyStartDate.Date;
                             }
 
@@ -82,6 +83,7 @@ namespace StargateAPI.Business.Commands
                                 astronautDetail.CurrentRank = request.Rank;
                                 if (string.Equals(request.DutyTitle, "RETIRED", StringComparison.OrdinalIgnoreCase))
                                 {
+                                    request.DutyTitle = "RETIRED";
                                     astronautDetail.CareerEndDate = request.DutyStartDate.AddDays(-1).Date;
                                 }
                                 _context.AstronautDetails.Update(astronautDetail);

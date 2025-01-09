@@ -30,24 +30,12 @@ namespace StargateAPI.Controllers
             }
             else
             {
-                try
+                var result = await _mediator.Send(new GetPersonByName()
                 {
-                    var result = await _mediator.Send(new GetPersonByName()
-                    {
-                        Name = name
-                    });
+                    Name = name
+                });
 
-                    return this.GetResponse(result);
-                }
-                catch (Exception ex)
-                {
-                    return this.GetResponse(new BaseResponse()
-                    {
-                        Message = ex.Message,
-                        Success = false,
-                        ResponseCode = (int)HttpStatusCode.InternalServerError
-                    });
-                }   
+                return this.GetResponse(result);
             }         
         }
 

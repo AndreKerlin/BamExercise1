@@ -22,15 +22,6 @@ namespace StargateAPI.Business.Commands
         }
         public Task Process(CreatePerson request, CancellationToken cancellationToken)
         {
-        
-            var person = _context.People.FirstOrDefaultAsync(z => z.Name == request.Name, cancellationToken);
-
-            if (person is not null)
-            {
-                _logger.LogWarning("Attempt to create a person with an existing name: {Name}", request.Name);
-                throw new BadHttpRequestException("Bad Request: Name already exists");
-            }
-
             return Task.CompletedTask;
         }
     }
