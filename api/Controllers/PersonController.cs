@@ -53,24 +53,19 @@ namespace StargateAPI.Controllers
         [HttpGet("{name}")]
         public async Task<IActionResult> GetPersonByName(string name)
         {
-            if(string.IsNullOrEmpty(name))
+            var validationResult = await ValidationHelper.ValidateNameAsync(name, "GetPersonByName", "Name", _apiLogger, this);
+            if (validationResult != null)
             {
-                  await _apiLogger.LogApiCall($"GetPersonByName/{name}", true, errorLog: "Name cannot be null or empty");
-
-                return this.GetResponse(new BaseResponse()
-                {
-                    Message = "Name cannot be null or empty",
-                    Success = false,
-                    ResponseCode = (int)HttpStatusCode.BadRequest
-                });
-            }else{
+                return validationResult;
+            }
+            else{
                 try
                 {
                     var result = await _mediator.Send(new GetPersonByName()
                     {
                         Name = name
                     });
-                    await _apiLogger.LogApiCall($"GetPersonByName/{name}", true);
+                    
                     return this.GetResponse(result);
                 }
                 catch (Exception ex)
@@ -87,33 +82,10 @@ namespace StargateAPI.Controllers
             
         }
 
-        // [HttpPost("")]
-        // public async Task<IActionResult> CreatePerson([FromBody] CreatePerson request)
-        // {
-        //         try
-        //         {
-        //             var result = await _mediator.Send(request);
-        //         return this.GetResponse(result);    
-        //         }
-        //         catch (Exception ex)
-        //         {
-                    
-        //             return this.GetResponse(new BaseResponse()
-        //             {
-        //                 Message = ex.Message,
-        //                 Success = false,
-        //                 ResponseCode = (int)HttpStatusCode.InternalServerError
-        //             });
-        //         }
-
-            
-            
-        // }
-
         [HttpPost]
         public async Task<IActionResult> CreatePerson(CreatePerson command)
         {
-            var validationResult = await ValidationHelper.ValidateNameAsync(command.Name, "UpdatePerson", "Name", _apiLogger, this);
+            var validationResult = await ValidationHelper.ValidateNameAsync(command.Name, "CreatePerson", "Name", _apiLogger, this);
             if (validationResult != null)
             {
                 return validationResult;
@@ -123,7 +95,7 @@ namespace StargateAPI.Controllers
                 try
                 {
                     var result = await _mediator.Send(command);
-                    await _apiLogger.LogApiCall($"CreatePerson/{command.Name}", true);
+
                     return Ok(result);
                 }
                 catch (Exception ex)
@@ -143,26 +115,23 @@ namespace StargateAPI.Controllers
         [HttpPut("")]
         public async Task<IActionResult> UpdatePerson(UpdatePerson command)
         {
-            if(string.IsNullOrEmpty(command.Name))
+            var validationResult = await ValidationHelper.ValidateNameAsync(command.Name, "UpdatePerson", "Name", _apiLogger, this);
+            if (validationResult != null)
             {
-                 await _apiLogger.LogApiCall($"UpdatePerson/{command.Name}", false, errorLog: "Name cannot be null or empty");
-
-                return this.GetResponse(new BaseResponse()
-                {
-                    Message = "Name cannot be null or empty",
-                    Success = false,
-                    ResponseCode = (int)HttpStatusCode.BadRequest
-                });
-            }else{
+                return validationResult;
+            }
+            else
+            {
                 try
                 {
                     var result = await _mediator.Send(command);
-                    await _apiLogger.LogApiCall($"UpdatePerson/{command.Name}", true, "Name", command.Name, command.NewName);
+                    
                     return this.GetResponse(result);
                 }
                 catch (Exception ex)
                 {
                     await _apiLogger.LogApiCall($"UpdatePerson/{command.Name}", false, errorLog: ex.Message);
+
                     return this.GetResponse(new BaseResponse()
                     {
                         Message = ex.Message,

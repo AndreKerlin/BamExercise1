@@ -24,11 +24,6 @@ namespace StargateAPI.Helpers
         }
     }
 
-    public interface IApiLogger
-    {
-        Task LogApiCall(string action, bool success, string errorLog = null);
-    }
-
     public class BaseResponse
     {
         public string Message { get; set; }

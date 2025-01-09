@@ -33,10 +33,12 @@ namespace StargateAPI.Business.Commands
     public class UpdatePersonHandler : IRequestHandler<UpdatePerson, UpdatePersonResult>
     {
         private readonly StargateContext _context;
-
-        public UpdatePersonHandler(StargateContext context)
+        private readonly StarbaseApiCallLogger _apiLogger;
+        
+        public UpdatePersonHandler(StargateContext context, StarbaseApiCallLogger apiLogger)
         {
             _context = context;
+            _apiLogger = apiLogger;
         }
         public async Task<UpdatePersonResult> Handle(UpdatePerson request, CancellationToken cancellationToken)
         {
@@ -50,12 +52,15 @@ namespace StargateAPI.Business.Commands
                     person.Name = request.NewName;
                     await _context.SaveChangesAsync(cancellationToken);
 
+                    await _apiLogger.LogApiCall($"UpdatePerson/{request.Name}", true, "Name", request.Name, request.NewName);
                     return new UpdatePersonResult()
                     {
                         Name = person.Name
                     };
                 }catch (Exception ex)
                 {
+                    await _apiLogger.LogApiCall($"UpdatePerson/{request.Name}", false, errorLog: ex.Message);
+
                     return new UpdatePersonResult()
                     {
                         Message = ex.Message,
@@ -63,10 +68,9 @@ namespace StargateAPI.Business.Commands
                         ResponseCode = (int)HttpStatusCode.InternalServerError
                     };
                 } 
-                
             }
-
         }
+
     }
 
     public class UpdatePersonResult : BaseResponse

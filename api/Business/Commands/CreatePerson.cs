@@ -38,12 +38,12 @@ namespace StargateAPI.Business.Commands
     public class CreatePersonHandler : IRequestHandler<CreatePerson, CreatePersonResult>
     {
         private readonly StargateContext _context;
-        private readonly ILogger<CreatePersonHandler> _logger;
+        private readonly StarbaseApiCallLogger _apiLogger;
 
-         public CreatePersonHandler(StargateContext context, ILogger<CreatePersonHandler> logger)
+         public CreatePersonHandler(StargateContext context, StarbaseApiCallLogger apiLogger)
         {
             _context = context;
-            _logger = logger;
+            _apiLogger = apiLogger;
         }
 
         public async Task<CreatePersonResult> Handle(CreatePerson request, CancellationToken cancellationToken)
@@ -63,6 +63,8 @@ namespace StargateAPI.Business.Commands
                     await _context.People.AddAsync(newPerson, cancellationToken);
                     await _context.SaveChangesAsync(cancellationToken);
 
+                    await _apiLogger.LogApiCall($"CreatePerson/{request.Name}", true); 
+
                     return new CreatePersonResult()
                     {
                         Id = newPerson.Id,
@@ -71,7 +73,8 @@ namespace StargateAPI.Business.Commands
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error occurred while creating a new person with name: {Name}", request.Name);
+                    await _apiLogger.LogApiCall($"CreatePerson/{request.Name}", false, errorLog: ex.Message); 
+
                     throw new ApplicationException("An error occurred while creating the person. Please try again later.");
                 }
             }

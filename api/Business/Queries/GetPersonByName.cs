@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using StargateAPI.Business.Data;
 using StargateAPI.Business.Dtos;
 using StargateAPI.Controllers;
@@ -14,22 +15,49 @@ namespace StargateAPI.Business.Queries
     public class GetPersonByNameHandler : IRequestHandler<GetPersonByName, GetPersonByNameResult>
     {
         private readonly StargateContext _context;
-        public GetPersonByNameHandler(StargateContext context)
+        private readonly StarbaseApiCallLogger _apiLogger;
+        public GetPersonByNameHandler(StargateContext context, StarbaseApiCallLogger apiLogger)
         {
             _context = context;
+            _apiLogger = apiLogger;
         }
 
         public async Task<GetPersonByNameResult> Handle(GetPersonByName request, CancellationToken cancellationToken)
         {
-            var result = new GetPersonByNameResult();
+            try{
+                var PersonRecord = (from persons in _context.People.AsNoTracking()
+                        join astronautDetail in _context.AstronautDetails.AsNoTracking()
+                        on persons.Id equals astronautDetail.PersonId into personDetails
+                        from detail in personDetails.DefaultIfEmpty()
+                        where persons.Name == request.Name
+                        select new PersonAstronaut
+                        {
+                            PersonId = persons.Id,
+                            Name = persons.Name,
+                            CurrentRank = detail.CurrentRank,
+                            CurrentDutyTitle = detail.CurrentDutyTitle,
+                            CareerStartDate = detail.CareerStartDate,
+                            CareerEndDate = detail.CareerEndDate
+                        }).FirstOrDefault(); 
 
-            var query = $"SELECT a.Id as PersonId, a.Name, b.CurrentRank, b.CurrentDutyTitle, b.CareerStartDate, b.CareerEndDate FROM [Person] a LEFT JOIN [AstronautDetail] b on b.PersonId = a.Id WHERE '{request.Name}' = a.Name";
+                if(PersonRecord is not null){
+                    var personResult = new GetPersonByNameResult { Person = PersonRecord };
+                    
+                    await _apiLogger.LogApiCall($"GetPersonByName/{request.Name}", true);
 
-            var person = await _context.Connection.QueryAsync<PersonAstronaut>(query);
+                    return personResult;
 
-            result.Person = person.FirstOrDefault();
+                }
+                else{
+                    await _apiLogger.LogApiCall($"GetPersonByName/{request.Name}", true);
 
-            return result;
+                    return new GetPersonByNameResult { Person = null, Message = $"User with name {request.Name} not found" };
+
+                }
+            }catch(Exception ex){
+                await _apiLogger.LogApiCall($"GetPersonByName/{request.Name}", false, errorLog: ex.Message);
+                return new GetPersonByNameResult { Person = null };
+            }
         }
     }
 
