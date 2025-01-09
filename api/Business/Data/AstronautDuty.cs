@@ -14,6 +14,7 @@ namespace StargateAPI.Business.Data
         public string Rank { get; set; } = string.Empty;
 
         public string DutyTitle { get; set; } = string.Empty;
+        public bool CurrentDuty { get; set; } = false;
 
         public DateTime DutyStartDate { get; set; }
 

@@ -17,7 +17,6 @@ builder.Services.AddDbContext<StargateContext>(options =>
 builder.Services.AddScoped<StarbaseApiCallLogger>();
 builder.Services.AddMediatR(cfg =>
 {
-    cfg.AddRequestPreProcessor<CreateAstronautDutyPreProcessor>();
     cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly);
 });
 

@@ -52,14 +52,14 @@ namespace StargateAPI.Business.Commands
                     person.Name = request.NewName;
                     await _context.SaveChangesAsync(cancellationToken);
 
-                    await _apiLogger.LogApiCall($"UpdatePerson/{request.Name}", true, "Name", request.Name, request.NewName);
+                    await _apiLogger.LogApiCall($"UpdatePerson/{request.Name}", true, "Name", request.Name, request.NewName); // Log the successful call with changed field
                     return new UpdatePersonResult()
                     {
                         Name = person.Name
                     };
                 }catch (Exception ex)
                 {
-                    await _apiLogger.LogApiCall($"UpdatePerson/{request.Name}", false, errorLog: ex.Message);
+                    await _apiLogger.LogApiCall($"UpdatePerson/{request.Name}", false, errorLog: ex.Message); // Log the error
 
                     return new UpdatePersonResult()
                     {

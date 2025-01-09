@@ -6,21 +6,38 @@ namespace StargateAPI.Helpers
 {
         public static class ValidationHelper
     {
-        public static async Task<IActionResult> ValidateNameAsync(string name, string action, string field, StarbaseApiCallLogger apiLogger, ControllerBase controller)
+        public static async Task<IActionResult> ValidateFieldsAsync(List<string> necessaryFieldsValues , string action, List<string> necessaryFields , StarbaseApiCallLogger apiLogger, ControllerBase controller)
         {
-            if (string.IsNullOrEmpty(name))
+            int i = 0;
+            string invalidFields = "";
+            bool errorsExist = false;
+            // loop through necessary fields and make note of any that are null or empty
+            foreach (var fieldValue in necessaryFieldsValues)
             {
-                await apiLogger.LogApiCall($"{action}/{name}", false, errorLog: $"{field} cannot be null or empty");
+                if (string.IsNullOrEmpty(fieldValue))
+                {
+                    invalidFields += $"{necessaryFields[i]}, ";
+                    errorsExist = true;
+                }
+                i++;
+            }
+            // if any fields are null or empty, log the error and return a bad request with the invalid fields
+            if(errorsExist){
+                if (invalidFields.EndsWith(", "))
+                {
+                    invalidFields = invalidFields.Substring(0, invalidFields.Length - 2);
+                }
+                await apiLogger.LogApiCall($"{action}", false, errorLog: $"{invalidFields} cannot be null or empty");
 
                 return controller.BadRequest(new BaseResponse()
-                {
-                    Message = "Name cannot be null or empty",
-                    Success = false,
-                    ResponseCode = (int)HttpStatusCode.BadRequest
-                });
+                    {
+                        Message = invalidFields + $" cannot be null or empty",
+                        Success = false,
+                        ResponseCode = (int)HttpStatusCode.BadRequest
+                    });
+            }else{
+                return null;
             }
-
-            return null;
         }
     }
 

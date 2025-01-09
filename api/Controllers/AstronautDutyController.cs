@@ -23,7 +23,7 @@ namespace StargateAPI.Controllers
         [HttpGet("{name}")]
         public async Task<IActionResult> GetAstronautDutiesByName(string name)
         {
-            var validationResult = await ValidationHelper.ValidateNameAsync(name, "AstronautDuty/GetAstronautDutiesByName", "Name", _apiLogger, this);
+            var validationResult = await ValidationHelper.ValidateFieldsAsync([name], "AstronautDuty/GetAstronautDutiesByName", ["Name"], _apiLogger, this);
             if (validationResult != null)
             {
                 return validationResult;
@@ -51,11 +51,21 @@ namespace StargateAPI.Controllers
             }         
         }
 
-        [HttpPost("")]
-        public async Task<IActionResult> CreateAstronautDuty([FromBody] CreateAstronautDuty request)
+        [HttpPost]
+        public async Task<IActionResult> CreateAstronautDuty(CreateAstronautDuty command)
         {
-                var result = await _mediator.Send(request);
-                return this.GetResponse(result);           
+            var validationResult = await ValidationHelper.ValidateFieldsAsync([command.Name, command.Rank,command.DutyTitle], "AstronautDuty/GetAstronautDutiesByName", ["Name","Rank","DutyTitle"], _apiLogger, this);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+            else
+            {
+                var result = await _mediator.Send(command);
+
+                return Ok(result); 
+            }
+            
         }
     }
 }

@@ -39,7 +39,7 @@ namespace StargateAPI.Controllers
             }
             catch (Exception ex)
             {
-                await _apiLogger.LogApiCall("GetPeople", false, errorLog: ex.Message);
+                await _apiLogger.LogApiCall("GetPeople", false, errorLog: ex.Message); // log error
                 return this.GetResponse(new BaseResponse()
                 {
                     Message = ex.Message,
@@ -52,7 +52,7 @@ namespace StargateAPI.Controllers
         [HttpGet("{name}")]
         public async Task<IActionResult> GetPersonByName(string name)
         {
-            var validationResult = await ValidationHelper.ValidateNameAsync(name, "GetPersonByName", "Name", _apiLogger, this);
+            var validationResult = await ValidationHelper.ValidateFieldsAsync([name], "GetPersonByName", ["Name"], _apiLogger, this);
             if (validationResult != null)
             {
                 return validationResult; // essential Paramater was null
@@ -69,7 +69,7 @@ namespace StargateAPI.Controllers
                 }
                 catch (Exception ex)
                 {
-                    await _apiLogger.LogApiCall($"GetPersonByName/{name}", true, errorLog: ex.Message);
+                    await _apiLogger.LogApiCall($"GetPersonByName/{name}", true, errorLog: ex.Message); // log error
                     return this.GetResponse(new BaseResponse()
                     {
                         Message = ex.Message,
@@ -84,7 +84,7 @@ namespace StargateAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePerson(CreatePerson command)
         {
-            var validationResult = await ValidationHelper.ValidateNameAsync(command.Name, "CreatePerson", "Name", _apiLogger, this);
+            var validationResult = await ValidationHelper.ValidateFieldsAsync([command.Name], "CreatePerson", ["Name"], _apiLogger, this);
             if (validationResult != null)
             {
                 return validationResult; // essential Paramater was null
@@ -99,7 +99,7 @@ namespace StargateAPI.Controllers
                 }
                 catch (Exception ex)
                 {
-                    await _apiLogger.LogApiCall($"CreatePerson/{command.Name}", false, errorLog: ex.Message);
+                    await _apiLogger.LogApiCall($"CreatePerson/{command.Name}", false, errorLog: ex.Message);  // log error
                     return this.GetResponse(new BaseResponse()
                     {
                         Message = ex.Message,
@@ -114,7 +114,7 @@ namespace StargateAPI.Controllers
         [HttpPut("")]
         public async Task<IActionResult> UpdatePerson(UpdatePerson command)
         {
-            var validationResult = await ValidationHelper.ValidateNameAsync(command.Name, "UpdatePerson", "Name", _apiLogger, this);
+            var validationResult = await ValidationHelper.ValidateFieldsAsync([command.Name, command.NewName], "UpdatePerson", ["Name", "NewName"], _apiLogger, this);
             if (validationResult != null)
             {
                 return validationResult; // essential Paramater was null
@@ -129,7 +129,7 @@ namespace StargateAPI.Controllers
                 }
                 catch (Exception ex)
                 {
-                    await _apiLogger.LogApiCall($"UpdatePerson/{command.Name}", false, errorLog: ex.Message);
+                    await _apiLogger.LogApiCall($"UpdatePerson/{command.Name}", false, errorLog: ex.Message); // log error
 
                     return this.GetResponse(new BaseResponse()
                     {

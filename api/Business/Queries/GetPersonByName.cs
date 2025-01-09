@@ -25,11 +25,12 @@ namespace StargateAPI.Business.Queries
         public async Task<GetPersonByNameResult> Handle(GetPersonByName request, CancellationToken cancellationToken)
         {
             try{
+                // only grab a persons record if they have astronaut details associated with them
                 var PersonRecord = (from persons in _context.People.AsNoTracking()
                         join astronautDetail in _context.AstronautDetails.AsNoTracking()
                         on persons.Id equals astronautDetail.PersonId into personDetails
                         from detail in personDetails.DefaultIfEmpty()
-                        where persons.Name == request.Name
+                        where persons.Name == request.Name && detail != null
                         select new PersonAstronaut
                         {
                             PersonId = persons.Id,
@@ -43,19 +44,19 @@ namespace StargateAPI.Business.Queries
                 if(PersonRecord is not null){
                     var personResult = new GetPersonByNameResult { Person = PersonRecord };
                     
-                    await _apiLogger.LogApiCall($"GetPersonByName/{request.Name}", true);
+                    await _apiLogger.LogApiCall($"GetPersonByName/{request.Name}", true); // log success
 
                     return personResult;
 
                 }
                 else{
-                    await _apiLogger.LogApiCall($"GetPersonByName/{request.Name}", true);
+                    await _apiLogger.LogApiCall($"GetPersonByName/{request.Name}", true); // log success
 
                     return new GetPersonByNameResult { Person = null, Message = $"User with name {request.Name} not found" };
 
                 }
             }catch(Exception ex){
-                await _apiLogger.LogApiCall($"GetPersonByName/{request.Name}", false, errorLog: ex.Message);
+                await _apiLogger.LogApiCall($"GetPersonByName/{request.Name}", false, errorLog: ex.Message); // log error
                 return new GetPersonByNameResult { Person = null };
             }
         }
