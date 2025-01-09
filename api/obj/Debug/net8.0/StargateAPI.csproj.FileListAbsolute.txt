@@ -397,3 +397,4 @@ c:\Users\kerli\Desktop\BamExercise1\api\obj\Debug\net8.0\refint\StargateAPI.dll
 c:\Users\kerli\Desktop\BamExercise1\api\obj\Debug\net8.0\StargateAPI.pdb
 c:\Users\kerli\Desktop\BamExercise1\api\obj\Debug\net8.0\StargateAPI.genruntimeconfig.cache
 c:\Users\kerli\Desktop\BamExercise1\api\obj\Debug\net8.0\ref\StargateAPI.dll
+c:\Users\kerli\Desktop\BamExercise1\api\obj\Debug\net8.0\StargateAPI.sourcelink.json

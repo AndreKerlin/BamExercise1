@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StargateAPI.Business.Commands;
 using StargateAPI.Business.Queries;
+using StargateAPI.Helpers;
 using System.Net;
 
 namespace StargateAPI.Controllers
@@ -11,32 +12,43 @@ namespace StargateAPI.Controllers
     public class AstronautDutyController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public AstronautDutyController(IMediator mediator)
+        private readonly StarbaseApiCallLogger _apiLogger; 
+
+        public AstronautDutyController(IMediator mediator, StarbaseApiCallLogger apiCallLogger)
         {
             _mediator = mediator;
+            _apiLogger = apiCallLogger;
         }
 
         [HttpGet("{name}")]
         public async Task<IActionResult> GetAstronautDutiesByName(string name)
         {
-            try
+            var validationResult = await ValidationHelper.ValidateNameAsync(name, "AstronautDuty/GetAstronautDutiesByName", "Name", _apiLogger, this);
+            if (validationResult != null)
             {
-                var result = await _mediator.Send(new GetPersonByName()
-                {
-                    Name = name
-                });
-
-                return this.GetResponse(result);
+                return validationResult;
             }
-            catch (Exception ex)
+            else
             {
-                return this.GetResponse(new BaseResponse()
+                try
                 {
-                    Message = ex.Message,
-                    Success = false,
-                    ResponseCode = (int)HttpStatusCode.InternalServerError
-                });
-            }            
+                    var result = await _mediator.Send(new GetPersonByName()
+                    {
+                        Name = name
+                    });
+
+                    return this.GetResponse(result);
+                }
+                catch (Exception ex)
+                {
+                    return this.GetResponse(new BaseResponse()
+                    {
+                        Message = ex.Message,
+                        Success = false,
+                        ResponseCode = (int)HttpStatusCode.InternalServerError
+                    });
+                }   
+            }         
         }
 
         [HttpPost("")]

@@ -40,8 +40,7 @@ namespace StargateAPI.Business.Commands
         }
         public async Task<UpdatePersonResult> Handle(UpdatePerson request, CancellationToken cancellationToken)
         {
-
-            var person = _context.People.AsNoTracking().FirstOrDefault(z => z.Name == request.Name);
+            var person = await _context.People.FirstOrDefaultAsync(z => z.Name == request.Name, cancellationToken);
             if(person is null){
                 throw new BadHttpRequestException("Bad Request: Name does not exist");
             }
@@ -49,7 +48,7 @@ namespace StargateAPI.Business.Commands
                 try
                 {
                     person.Name = request.NewName;
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync(cancellationToken);
 
                     return new UpdatePersonResult()
                     {
