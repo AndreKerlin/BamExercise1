@@ -34,7 +34,6 @@ namespace StargateAPI.Controllers
                 {
 
                 });
-                await _apiLogger.LogApiCall("GetPeople", true);
 
                 return this.GetResponse(result);
             }
@@ -56,7 +55,7 @@ namespace StargateAPI.Controllers
             var validationResult = await ValidationHelper.ValidateNameAsync(name, "GetPersonByName", "Name", _apiLogger, this);
             if (validationResult != null)
             {
-                return validationResult;
+                return validationResult; // essential Paramater was null
             }
             else{
                 try
@@ -65,7 +64,7 @@ namespace StargateAPI.Controllers
                     {
                         Name = name
                     });
-                    
+
                     return this.GetResponse(result);
                 }
                 catch (Exception ex)
@@ -88,7 +87,7 @@ namespace StargateAPI.Controllers
             var validationResult = await ValidationHelper.ValidateNameAsync(command.Name, "CreatePerson", "Name", _apiLogger, this);
             if (validationResult != null)
             {
-                return validationResult;
+                return validationResult; // essential Paramater was null
             }
             else
             {
@@ -118,7 +117,7 @@ namespace StargateAPI.Controllers
             var validationResult = await ValidationHelper.ValidateNameAsync(command.Name, "UpdatePerson", "Name", _apiLogger, this);
             if (validationResult != null)
             {
-                return validationResult;
+                return validationResult; // essential Paramater was null
             }
             else
             {
